@@ -33,7 +33,7 @@ start:     lda     ra                  ; move past any spaces
            ldn     ra                  ; get character
            lbnz    good                ; jump if non-zero
            sep     scall               ; otherwise display usage
-           dw      f_inmsg
+           dw      o_inmsg
            db      '1Usage: copy source dest',10,13,0
            sep     sret                ; and return to os
 good:      mov     rf,source           ; point to source filename
@@ -50,7 +50,7 @@ good2:     ldi     0                   ; need to write terminator
            glo     re                  ; recover byte
            lbnz    good3               ; jump if not terminator
            sep     scall               ; otherwise display usage
-           dw      f_inmsg
+           dw      o_inmsg
            db      '2Usage: copy source dest',10,13,0
            sep     sret                ; and return
 good3:     lda     ra                  ; move past any space
@@ -60,7 +60,7 @@ good3:     lda     ra                  ; move past any space
            ldn     ra                  ; get character
            lbnz    good4               ; jump if not terminator
            sep     scall               ; otherwise display usage
-           dw      f_inmsg
+           dw      o_inmsg
            db      '3Usage: copy source dest',10,13,0
            sep     sret                ; and return to os
 good4:     mov     rf,dest             ; point to destination filename
@@ -138,7 +138,7 @@ mainlp:    ldi     0                   ; want to read 255 bytes
            dw      o_read
            lbnf    readgd
            sep     scall               ; display error on reading
-           dw      f_inmsg
+           dw      o_inmsg
            db      'File read error',10,13,0
            lbr     done                ; return to OS
 readgd:    glo     rc                  ; check for zero bytes read
@@ -155,7 +155,7 @@ readgd:    glo     rc                  ; check for zero bytes read
            dw      o_write
            lbnf    mainlp              ; loop back if no errors
            sep     scall               ; otherwise display error
-           dw      f_inmsg
+           dw      o_inmsg
            db      'File write error',10,13,0
 done:      sep     scall               ; close the file
            dw      o_close
