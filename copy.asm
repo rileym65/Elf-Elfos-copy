@@ -16,8 +16,8 @@
 include    ../bios.inc
 include    ../kernel.inc
 
-begin:     org     2000h
-           br      start
+           org     2000h
+begin:     br      start
            eever
            db      'Written by Michael H. Riley',0
 
