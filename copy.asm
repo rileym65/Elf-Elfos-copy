@@ -6,24 +6,19 @@
 ; *** without express written permission from the author.         ***
 ; *******************************************************************
 
+.op "PUSH","N","9$1 73 8$1 73"
+.op "POP","N","60 72 A$1 F0 B$1"
+.op "CALL","W","D4 H1 L1"
+.op "RTN","","D5"
+.op "MOV","NR","9$2 B$1 8$2 A$1"
+.op "MOV","NW","F8 H2 B$1 F8 L2 A$1"
+
 include    ../bios.inc
 include    ../kernel.inc
 
-           org     8000h
-           lbr     0ff00h
-           db      'copy',0
-           dw      9000h
-           dw      endrom+7000h
-           dw      2000h
-           dw      endrom-2000h
-           dw      2000h
-           db      0
-
-           org     2000h
+begin:     org     2000h
            br      start
-
-include    date.inc
-include    build.inc
+           eever
            db      'Written by Michael H. Riley',0
 
 start:     lda     ra                  ; move past any spaces
@@ -34,7 +29,8 @@ start:     lda     ra                  ; move past any spaces
            lbnz    good                ; jump if non-zero
            sep     scall               ; otherwise display usage
            dw      o_inmsg
-           db      '1Usage: copy source dest',10,13,0
+           db      'Usage: copy source dest',10,13,0
+           ldi     0ah
            sep     sret                ; and return to os
 good:      mov     rf,source           ; point to source filename
 good1:     lda     ra                  ; get byte from argument
@@ -51,7 +47,8 @@ good2:     ldi     0                   ; need to write terminator
            lbnz    good3               ; jump if not terminator
            sep     scall               ; otherwise display usage
            dw      o_inmsg
-           db      '2Usage: copy source dest',10,13,0
+           db      'Usage: copy source dest',10,13,0
+           ldi     0ah
            sep     sret                ; and return
 good3:     lda     ra                  ; move past any space
            smi     ' '
@@ -61,7 +58,8 @@ good3:     lda     ra                  ; move past any space
            lbnz    good4               ; jump if not terminator
            sep     scall               ; otherwise display usage
            dw      o_inmsg
-           db      '3Usage: copy source dest',10,13,0
+           db      'Usage: copy source dest',10,13,0
+           ldi     0ah
            sep     sret                ; and return to os
 good4:     mov     rf,dest             ; point to destination filename
 good5:     lda     ra                  ; get byte from argument
@@ -90,7 +88,8 @@ good6:     ldi     0                   ; need terminator
            plo     rf
            sep     scall               ; display it
            dw      o_msg
-           lbr     o_wrmboot           ; and return to os
+           ldi     04
+           sep     sret                ; and return to os
 opened:    ghi     rd                  ; make copy of descriptor
            phi     r7
            glo     rd
@@ -112,7 +111,8 @@ opened:    ghi     rd                  ; make copy of descriptor
            mov     rf,errmsg2          ; point to error message
            sep     scall               ; and display it
            dw      o_msg
-           lbr     o_wrmboot
+           ldi     04
+           sep     sret      
 opened2:   irx                         ; recover first descriptor
            ldxa
            phi     r7
@@ -165,12 +165,8 @@ done:      sep     scall               ; close the file
            plo     rd
            sep     scall               ; and close it
            dw      o_close
-           lbr     o_wrmboot
+           ldi     0
            sep     sret                ; return to os
-
-
-
-           
 
 errmsg:    db      'File not found',10,13,0
 errmsg2:   db      'Could not open destination',10,13,0
@@ -191,9 +187,13 @@ dfildes:   db      0,0,0,0
 
 endrom:    equ     $
 
+.suppress
+
 source:    ds      256
 dest:      ds      256
 dta:       ds      512
 ddta:      ds      512
 buffer:    db      0
+
+           end     begin
 
